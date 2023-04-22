@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+
+Globals: # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+  Function:
+    Timeout: 10
+    MemorySize: 256
+    Runtime: dotnet6
+
+Resources:
+  TranslationProcessorFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Handler: TranslationProcessor::TranslationProcessor.Function::FunctionHandler
+      CodeUri: ./src/TranslationProcessor/
+      Architectures:
+          - x86_64
+      Tracing: Active
+      Events:
+        TranslationRequest:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:469909854323:TranslationQueue
+            BatchSize: 10
+            Enabled: true
+      Environment: # Powertools env vars: https://awslabs.github.io/aws-lambda-powertools-python/#environment-variables
+        Variables:
+          POWERTOOLS_SERVICE_NAME: TranslationProcessor
+          POWERTOOLS_LOG_LEVEL: Info
+          POWERTOOLS_LOGGER_CASE: PascalCase # Allowed values are: CamelCase, PascalCase and SnakeCase (Default)
+          POWERTOOLS_TRACER_CAPTURE_RESPONSE: true
+          POWERTOOLS_TRACER_CAPTURE_ERROR: true     # To disable tracing (CaptureMode = TracingCaptureMode.Disabled)
+          POWERTOOLS_METRICS_NAMESPACE: translationprocessor
+          QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/469909854323/TranslationResponseQueue"
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: TranslationResponseQueue
+        - Version: '2012-10-17' # Policy Document
+          Statement:
+            - Effect: Allow
+              Action:
+                - translate:*
+              Resource: "*"

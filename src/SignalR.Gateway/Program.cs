@@ -1,8 +1,11 @@
+using System.Text.Json;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SQS;
-using SignalR.Sample.Chat;
+using Microsoft.AspNetCore.SignalR;
+using SignalR.Gateway;
+using SignalR.Gateway.Translation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +26,7 @@ builder.Services.AddControllers();
 
 var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
 var portNumber = 6379;
-var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81";
+var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "";
 
 var connectionString = $"{hostName}:{portNumber}";
 
@@ -32,21 +35,41 @@ if (!string.IsNullOrEmpty(password))
     connectionString = $"{connectionString},password={password}";
 }
 
-builder.Services.AddSignalR()
-    .AddStackExchangeRedis(connectionString);
+if (string.IsNullOrEmpty(hostName))
+{
+    builder.Services.AddSignalR();
+}
+else
+{
+    builder.Services.AddSignalR()
+        .AddStackExchangeRedis(connectionString);   
+}
+
+builder.Services.AddLogging();
+
+builder.Services.AddHostedService<TranslationResponseWorker>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
 app.UseAuthorization();
+
+app.MapHub<TranslationHub>("/translationHub");
+
+var translationHub = app.Services.GetRequiredService<IHubContext<TranslationHub>>();
 
 app.MapGet(
     "/health",
     () => Results.Ok());
 
-app.MapControllers();
+// Allow client responses to be sent over HTTP
+app.MapPost("/transation/response", async context =>
+{
+    var translationResponse = JsonSerializer.Deserialize<TranslateMessageResponse>(context.Request.Body);
 
-app.MapHub<TranslationHub>("/chatHub");
+    await translationHub.Clients.Client(translationResponse.ConnectionId)
+        .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation});
+});
+
+app.MapControllers();
 
 app.Run();

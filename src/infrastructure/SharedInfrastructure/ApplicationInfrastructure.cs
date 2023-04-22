@@ -4,6 +4,7 @@ using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ElastiCache;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.SQS;
+using Amazon.CDK.AWS.SSM;
 using Constructs;
 
 namespace SharedInfrastructure;
@@ -36,12 +37,25 @@ public class ApplicationInfrastructureStack : Construct
             },
             QueueName = "TranslationQueue"
         });
+
+        var translationResponseQueue = new Queue(this, "TranslationResponseQueue", new QueueProps
+        {
+            DeadLetterQueue = new DeadLetterQueue
+            {
+                MaxReceiveCount = 3,
+                Queue = translationDeadLetterQueue
+            },
+            QueueName = "TranslationResponseQueue"
+        });
         
         var applicationRole = new Role(this, "ApplicationRole", new RoleProps
         {
             AssumedBy =new ServicePrincipal("tasks.apprunner.amazonaws.com"),
             RoleName = "SignalRAppRunnerApplicationRole"
         });
+
+        translationQueue.GrantSendMessages(applicationRole);
+        translationResponseQueue.GrantConsumeMessages(applicationRole);
 
         var ecrAccessRole = new Role(this, "EcrAccessRole", new RoleProps()
         {
@@ -65,11 +79,31 @@ public class ApplicationInfrastructureStack : Construct
                 SubnetIds = subnets.SubnetIds,
                 Description = "Subnet group for redis cache"
             });
+
+        var translationQueueParameter = new StringParameter(this, "TranslationQueueParameter",
+            new StringParameterProps()
+            {
+                ParameterName = "/signalr/translation/translation-queue",
+                StringValue = translationQueue.QueueUrl
+            });
+
+        var translationQueueResponseParameter = new StringParameter(this, "TranslationResponseQueueParameter",
+            new StringParameterProps()
+            {
+                ParameterName = "/signalr/translation/translation-response-queue",
+                StringValue = translationResponseQueue.QueueUrl
+            });
         
-        var translationQueueOuput = new CfnOutput(this, "translation-queue", new CfnOutputProps()
+        var translationQueueOutput = new CfnOutput(this, "translation-queue", new CfnOutputProps()
         {
             ExportName = "TranslationQueue",
             Value = translationQueue.QueueUrl
+        });
+        
+        var translationResponseQueueOutput = new CfnOutput(this, "translation-response-queue", new CfnOutputProps()
+        {
+            ExportName = "TranslationResponseQueue",
+            Value = translationResponseQueue.QueueUrl
         });
     }
 }

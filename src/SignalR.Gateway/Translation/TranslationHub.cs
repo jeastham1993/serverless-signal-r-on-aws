@@ -1,10 +1,9 @@
 ﻿using System.Text.Json;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-
-namespace SignalR.Sample.Chat;
-
 using Microsoft.AspNetCore.SignalR;
+
+namespace SignalR.Gateway.Translation;
 
 public class TranslationHub : Hub
 {
@@ -17,17 +16,22 @@ public class TranslationHub : Hub
         _configuration = configuration;
     }
     
+    public async Task SendTranslationResponse(string connectionId, string translation)
+    {
+        await this.Clients.Client(connectionId).SendAsync("ReceiveTranslationResponse", translation);
+    }
+    
     public async Task TranslateMessage(string translateTo, string message)
     {
-        var messageToSend = new
+        var messageToSend = new TranslateMessageCommand()
         {
-            translateTo = translateTo,
-            message = message,
-            connectionIdentifier = this.Context.ConnectionId
+            TranslateTo = translateTo,
+            Message = message,
+            ConnectionId = this.Context.ConnectionId
         };
 
         await this._sqsClient.SendMessageAsync(new SendMessageRequest(
             this._configuration["TranslationQueueUrl"],
-            JsonSerializer.Serialize(message)));
+            JsonSerializer.Serialize(messageToSend)));
     }
 }
