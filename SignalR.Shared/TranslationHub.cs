@@ -38,7 +38,7 @@ public class TranslationHub : Hub
     
     public async Task TranslateMessage(string username, string translateTo, string message)
     {
-        this._logger.LogInformation($"Received request for user {username}");
+        _logger.LogInformation($"Received request for user {username}");
         
         var messageToSend = new TranslateMessageCommand()
         {
@@ -47,6 +47,8 @@ public class TranslationHub : Hub
             Message = message,
             ConnectionId = this.Context.ConnectionId
         };
+        
+        _logger.LogInformation($"Sending request to {this._configuration["TranslationQueueUrl"]}");
 
         await this._sqsClient.SendMessageAsync(new SendMessageRequest(
             this._configuration["TranslationQueueUrl"],
