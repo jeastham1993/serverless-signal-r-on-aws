@@ -16,8 +16,8 @@ public class NetworkStack : Construct
             IpAddresses = IpAddresses.Cidr("10.0.0.0/16"),
             EnableDnsHostnames = true,
             EnableDnsSupport = true,
-            NatGateways = 2,
-            MaxAzs = 3,
+            NatGateways = 1,
+            MaxAzs = 1,
         });
 
         ApplicationSecurityGroup = new SecurityGroup(this, "ApplicationSecurityGroup", new SecurityGroupProps()
@@ -37,11 +37,6 @@ public class NetworkStack : Construct
         {
             ExportName = "ApplicationSubnetID1",
             Value = Vpc.PrivateSubnets[0].SubnetId
-        });
-        var appSubnet2Output = new CfnOutput(this, "app-subnet-2", new CfnOutputProps()
-        {
-            ExportName = "ApplicationSubnetID2",
-            Value = Vpc.PrivateSubnets[1].SubnetId
         });
     }
 }

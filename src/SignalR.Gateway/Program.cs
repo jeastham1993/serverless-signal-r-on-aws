@@ -4,8 +4,8 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SQS;
 using Microsoft.AspNetCore.SignalR;
-using SignalR.Gateway;
-using SignalR.Gateway.Translation;
+using SignalR.Shared;
+using TranslationProcessor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +24,7 @@ builder.Services.AddSingleton(sqsClient);
 
 builder.Services.AddControllers();
 
-var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "";
+var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
 var portNumber = 6379;
 var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "";
 
@@ -47,7 +47,7 @@ else
 
 builder.Services.AddLogging();
 
-builder.Services.AddHostedService<TranslationResponseWorker>();
+// builder.Services.AddHostedService<TranslationResponseWorker>();
 
 var app = builder.Build();
 
@@ -56,6 +56,8 @@ app.UseAuthorization();
 app.MapHub<TranslationHub>("/translationHub");
 
 var translationHub = app.Services.GetRequiredService<IHubContext<TranslationHub>>();
+
+await translationHub.Clients.Group("james").SendCoreAsync("Test", new[] { "hello" });;
 
 app.MapGet(
     "/health",
@@ -68,13 +70,6 @@ app.MapPost("/transation/response", async context =>
 
     await translationHub.Clients.Client(translationResponse.ConnectionId)
         .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation});
-});
-
-// Allow client responses to be sent over HTTP
-app.MapGet("/usertest", async context =>
-{
-    await translationHub.Clients.Groups("james")
-        .SendCoreAsync("ReceiveTranslationResponse", new object?[]{"The translation is James"});
 });
 
 app.MapControllers();

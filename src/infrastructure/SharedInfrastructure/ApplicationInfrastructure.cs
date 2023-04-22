@@ -20,7 +20,9 @@ public class ApplicationInfrastructureStack : Construct
             "AppRunnerSourceRepo",
             new RepositoryProps()
             {
-                RepositoryName = "app-runner-source-repo",
+                RepositoryName = "signal-r-source-repo",
+                AutoDeleteImages = true,
+                RemovalPolicy = RemovalPolicy.DESTROY
             });
 
         var translationDeadLetterQueue = new Queue(this, "TranslationDLQ", new QueueProps()

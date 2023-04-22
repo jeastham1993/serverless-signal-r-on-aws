@@ -7,12 +7,25 @@ Globals: # More info about Globals: https://github.com/awslabs/serverless-applic
     Timeout: 10
     MemorySize: 256
     Runtime: dotnet6
+    VpcConfig:
+      SecurityGroupIds:
+        - sg-04c9135580a2e0cae
+      SubnetIds:
+        - subnet-017996413109ddba1
+    
+Parameters:
+  TranslationQueueName:
+    Type: String
+  TranslationResponseQueueName:
+    Type: String
+  RedisEndpoint:
+    Type: String
 
 Resources:
   TranslationProcessorFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      Handler: TranslationProcessor::TranslationProcessor.Function::FunctionHandler
+      Handler: TranslationProcessor
       CodeUri: ./src/TranslationProcessor/
       Architectures:
           - x86_64
@@ -21,7 +34,7 @@ Resources:
         TranslationRequest:
           Type: SQS
           Properties:
-            Queue: arn:aws:sqs:us-east-1:469909854323:TranslationQueue
+            Queue: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${TranslationQueueName}
             BatchSize: 10
             Enabled: true
       Environment: # Powertools env vars: https://awslabs.github.io/aws-lambda-powertools-python/#environment-variables
@@ -32,10 +45,11 @@ Resources:
           POWERTOOLS_TRACER_CAPTURE_RESPONSE: true
           POWERTOOLS_TRACER_CAPTURE_ERROR: true     # To disable tracing (CaptureMode = TracingCaptureMode.Disabled)
           POWERTOOLS_METRICS_NAMESPACE: translationprocessor
-          QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/469909854323/TranslationResponseQueue"
+          QUEUE_URL: !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/{TranslationResponseQueueName}"
+          REDIS_ENDPOINT: "signal-r-backplane-0001-001.8i4hko.0001.use1.cache.amazonaws.com:6379"
       Policies:
         - SQSSendMessagePolicy:
-            QueueName: TranslationResponseQueue
+            QueueName: !Ref TranslationResponseQueueName
         - Version: '2012-10-17' # Policy Document
           Statement:
             - Effect: Allow
