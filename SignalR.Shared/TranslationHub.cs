@@ -47,11 +47,13 @@ public class TranslationHub : Hub
             Message = message,
             ConnectionId = this.Context.ConnectionId
         };
+
+        var queueUrl = Environment.GetEnvironmentVariable("TRANSLATION_QUEUE_URL");
         
-        _logger.LogInformation($"Sending request to {this._configuration["TranslationQueueUrl"]}");
+        _logger.LogInformation($"Sending request to {queueUrl}");
 
         await this._sqsClient.SendMessageAsync(new SendMessageRequest(
-            this._configuration["TranslationQueueUrl"],
+            queueUrl,
             JsonSerializer.Serialize(messageToSend)));
     }
 }
