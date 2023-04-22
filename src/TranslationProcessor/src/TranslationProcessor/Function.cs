@@ -43,7 +43,8 @@ namespace TranslationProcessor
                     Environment.GetEnvironmentVariable("QUEUE_URL"), JsonSerializer.Serialize(new TranslateMessageResponse()
                     {
                         Translation = translationResponse.TranslatedText,
-                        ConnectionId = translationRequest.ConnectionId
+                        ConnectionId = translationRequest.ConnectionId,
+                        Username = translationRequest.Username
                     }));
             }
         }

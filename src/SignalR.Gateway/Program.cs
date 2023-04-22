@@ -24,7 +24,7 @@ builder.Services.AddSingleton(sqsClient);
 
 builder.Services.AddControllers();
 
-var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
+var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "";
 var portNumber = 6379;
 var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "";
 
@@ -68,6 +68,13 @@ app.MapPost("/transation/response", async context =>
 
     await translationHub.Clients.Client(translationResponse.ConnectionId)
         .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation});
+});
+
+// Allow client responses to be sent over HTTP
+app.MapGet("/usertest", async context =>
+{
+    await translationHub.Clients.Groups("james")
+        .SendCoreAsync("ReceiveTranslationResponse", new object?[]{"The translation is James"});
 });
 
 app.MapControllers();

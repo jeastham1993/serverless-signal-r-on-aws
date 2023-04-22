@@ -9,4 +9,7 @@ public record TranslateMessageResponse
     
     [JsonPropertyName("connectionId")]
     public string ConnectionId { get; set; }
+    
+    [JsonPropertyName("username")]
+    public string Username { get; set; }
 }

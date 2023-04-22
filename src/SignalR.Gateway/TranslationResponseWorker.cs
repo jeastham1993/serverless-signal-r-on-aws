@@ -24,19 +24,17 @@ public class TranslationResponseWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            this._logger.LogInformation("Checking for message");
-            
             var messages = await this._sqsClient.ReceiveMessageAsync(this._configuration["TranslationResponseQueueUrl"], stoppingToken);
-            
-            this._logger.LogInformation($"{messages.Messages.Count} message(s) found");
 
             foreach (var message in messages.Messages)
             {
+                this._logger.LogInformation("Processing message");
+                
                 try
                 {
                     var translationResponse = JsonSerializer.Deserialize<TranslateMessageResponse>(message.Body);
 
-                    await this._translationHub.Clients.Client(translationResponse.ConnectionId)
+                    await this._translationHub.Clients.Groups(translationResponse.Username)
                         .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation}, stoppingToken);
 
                     await this._sqsClient.DeleteMessageAsync(this._configuration["TranslationResponseQueueUrl"],
@@ -47,8 +45,6 @@ public class TranslationResponseWorker : BackgroundService
                     this._logger.LogError(e, "Failure processing message");
                 }
             }
-            
-            this._logger.LogInformation("Waiting 5 seconds....");
             
             await Task.Delay(TimeSpan.FromSeconds(5));
         }
