@@ -1,7 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build-env
 WORKDIR /App
-COPY SignalR.Shared/* ./SignalR.Shared/
-COPY src/SignalR.Gateway/* ./src/SignalR.Gateway/
+COPY SignalR.Shared/*.cs SignalR.Shared/*.csproj ./SignalR.Shared/
+COPY src/SignalR.Gateway/*.cs src/SignalR.Gateway/*.csproj ./src/SignalR.Gateway/
 RUN dotnet build "src/SignalR.Gateway/SignalR.Gateway.csproj" -c Release -o /app/build --self-contained true
 FROM build-env AS publish
 RUN dotnet publish "src/SignalR.Gateway/SignalR.Gateway.csproj" -c Release -o /app/publish --self-contained true
