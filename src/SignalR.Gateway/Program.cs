@@ -26,7 +26,7 @@ builder.Services.AddControllers();
 
 var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
 var portNumber = 6379;
-var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "";
+var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81";
 
 var connectionString = $"{hostName}:{portNumber}";
 
@@ -42,7 +42,10 @@ if (string.IsNullOrEmpty(hostName))
 else
 {
     builder.Services.AddSignalR()
-        .AddStackExchangeRedis(connectionString);   
+        .AddStackExchangeRedis(connectionString, options =>
+        {
+            options.Configuration.ChannelPrefix = "translation";
+        });   
 }
 
 builder.Services.AddLogging();
@@ -68,7 +71,7 @@ app.MapPost("/transation/response", async context =>
 {
     var translationResponse = JsonSerializer.Deserialize<TranslateMessageResponse>(context.Request.Body);
 
-    await translationHub.Clients.Client(translationResponse.ConnectionId)
+    await translationHub.Clients.Group(translationResponse.Username)
         .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation});
 });
 

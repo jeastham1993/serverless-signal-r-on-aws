@@ -28,18 +28,21 @@ builder.Services.AddLogging();
 var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_ENDPOINT");
 
 builder.Services.AddSignalR()
-    .AddStackExchangeRedis(redisConnectionString);
+    .AddStackExchangeRedis(redisConnectionString, options =>
+    {
+        //options.Configuration.ChannelPrefix = "translation";
+    });
 
 var app = builder.Build();
 
 app.MapHub<TranslationHub>("/translationHub");
 
+var translateClient = app.Services.GetRequiredService<AmazonTranslateClient>();
+var hub = app.Services.GetRequiredService<IHubContext<TranslationHub>>();
+
 var handler = async (SQSEvent sqsEvent) =>
 {
     Logger.LogInformation("Handler active");
-    var sqsClient = app.Services.GetRequiredService<AmazonSQSClient>();
-    var translateClient = app.Services.GetRequiredService<AmazonTranslateClient>();
-    var hub = app.Services.GetRequiredService<IHubContext<TranslationHub>>();
     
     Logger.LogInformation($"Retrieved Hub: {hub.ToString()}");
     
@@ -48,6 +51,8 @@ var handler = async (SQSEvent sqsEvent) =>
     foreach (var message in sqsEvent.Records)
     {
         var translationRequest = JsonSerializer.Deserialize<TranslateMessageCommand>(message.Body);
+        
+        Logger.LogInformation($"Processing translation for {translationRequest.Username} and connection {translationRequest.ConnectionId}");
 
         var translationResponse = await translateClient.TranslateTextAsync(new TranslateTextRequest
         {
@@ -56,16 +61,14 @@ var handler = async (SQSEvent sqsEvent) =>
             Text = translationRequest.Message
         });
         
-        await hub.Clients.Groups(translationRequest.Username)
-            .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.TranslatedText});
+        Logger.LogInformation("Sending message to connected client");
 
-        // await sqsClient.SendMessageAsync(
-        //     Environment.GetEnvironmentVariable("QUEUE_URL"), JsonSerializer.Serialize(new TranslateMessageResponse()
-        //     {
-        //         Translation = translationResponse.TranslatedText,
-        //         ConnectionId = translationRequest.ConnectionId,
-        //         Username = translationRequest.Username
-        //     }));
+        await hub.Clients.All.SendAsync("ReceiveTranslationResponse",
+            new object?[] { translationResponse.TranslatedText });
+
+        await hub.Clients.Client(translationRequest.ConnectionId)
+            .SendAsync("ReceiveTranslationResponse",
+                new object?[]{translationResponse.TranslatedText});
     }
 };
 
