@@ -1,18 +1,29 @@
-using System.Runtime.CompilerServices;
-
-using Microsoft.AspNetCore.Mvc;
-
+using Amazon;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
+using Amazon.SQS;
 using SignalR.Sample.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var chain = new CredentialProfileStoreChain();
+AWSCredentials? awsCredentials;
+var regionEndpoint = RegionEndpoint.USEast1;
+
+AmazonSQSClient sqsClient = new AmazonSQSClient(regionEndpoint);
+
+if (chain.TryGetAWSCredentials("dev", out awsCredentials))
+{
+    sqsClient = new AmazonSQSClient(awsCredentials, regionEndpoint);
+}
+
+builder.Services.AddSingleton(sqsClient);
 
 builder.Services.AddControllers();
 
 var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
 var portNumber = 6379;
-var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "";
+var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81";
 
 var connectionString = $"{hostName}:{portNumber}";
 
@@ -36,6 +47,6 @@ app.MapGet(
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<TranslationHub>("/chatHub");
 
 app.Run();

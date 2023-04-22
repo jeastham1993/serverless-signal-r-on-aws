@@ -1,7 +1,9 @@
-﻿using Amazon.CDK.AWS.EC2;
+﻿using Amazon.CDK;
+using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ElastiCache;
 using Amazon.CDK.AWS.IAM;
+using Amazon.CDK.AWS.SQS;
 using Constructs;
 
 namespace SharedInfrastructure;
@@ -19,6 +21,21 @@ public class ApplicationInfrastructureStack : Construct
             {
                 RepositoryName = "app-runner-source-repo",
             });
+
+        var translationDeadLetterQueue = new Queue(this, "TranslationDLQ", new QueueProps()
+        {
+            QueueName = "TranslationDeadLetterQueue"
+        });
+
+        var translationQueue = new Queue(this, "TranslationQueue", new QueueProps
+        {
+            DeadLetterQueue = new DeadLetterQueue
+            {
+                MaxReceiveCount = 3,
+                Queue = translationDeadLetterQueue
+            },
+            QueueName = "TranslationQueue"
+        });
         
         var applicationRole = new Role(this, "ApplicationRole", new RoleProps
         {
@@ -48,5 +65,11 @@ public class ApplicationInfrastructureStack : Construct
                 SubnetIds = subnets.SubnetIds,
                 Description = "Subnet group for redis cache"
             });
+        
+        var translationQueueOuput = new CfnOutput(this, "translation-queue", new CfnOutputProps()
+        {
+            ExportName = "TranslationQueue",
+            Value = translationQueue.QueueUrl
+        });
     }
 }
