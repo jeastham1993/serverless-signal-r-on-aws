@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\SignalR.Shared\SignalR.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

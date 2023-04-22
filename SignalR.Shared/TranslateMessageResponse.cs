@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SignalR.Gateway.Translation;
+namespace TranslationProcessor;
 
 public record TranslateMessageResponse
 {

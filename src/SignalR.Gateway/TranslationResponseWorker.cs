@@ -1,7 +1,8 @@
 using System.Text.Json;
 using Amazon.SQS;
 using Microsoft.AspNetCore.SignalR;
-using SignalR.Gateway.Translation;
+using SignalR.Shared;
+using TranslationProcessor;
 
 namespace SignalR.Gateway;
 

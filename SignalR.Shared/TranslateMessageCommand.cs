@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SignalR.Gateway.Translation;
+namespace SignalR.Shared;
 
 public record TranslateMessageCommand
 {
@@ -15,6 +15,5 @@ public record TranslateMessageCommand
     public string ConnectionId { get; set; }
     
     [JsonPropertyName("username")]
-    
     public string Username { get; set; }
 }
