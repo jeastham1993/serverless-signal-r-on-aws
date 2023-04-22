@@ -1,9 +1,10 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build-env
 WORKDIR /App
-COPY . .
-RUN dotnet build "SignalR.Gateway.csproj" -c Release -o /app/build --self-contained true
+COPY SignalR.Shared/* ./SignalR.Shared/
+COPY src/SignalR.Gateway/* ./src/SignalR.Gateway/
+RUN dotnet build "src/SignalR.Gateway/SignalR.Gateway.csproj" -c Release -o /app/build --self-contained true
 FROM build-env AS publish
-RUN dotnet publish "SignalR.Gateway.csproj" -c Release -o /app/publish --self-contained true
+RUN dotnet publish "src/SignalR.Gateway/SignalR.Gateway.csproj" -c Release -o /app/publish --self-contained true
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine

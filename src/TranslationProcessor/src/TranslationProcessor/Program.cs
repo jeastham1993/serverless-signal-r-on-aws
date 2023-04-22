@@ -10,6 +10,7 @@ using Amazon.Translate.Model;
 using AWS.Lambda.Powertools.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TranslationProcessor;
 
@@ -18,14 +19,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton(new AmazonSQSClient());
 builder.Services.AddSingleton(new AmazonTranslateClient());
 
+var configuration = new ConfigurationBuilder()
+    .Build();
+
+builder.Services.AddSingleton<IConfiguration>(configuration);
+builder.Services.AddLogging();
+
 var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_ENDPOINT");
 
-Console.WriteLine($"Connecting to: {redisConnectionString}");
-
 builder.Services.AddSignalR()
-    .AddStackExchangeRedis(redisConnectionString, options =>
-    {
-    });
+    .AddStackExchangeRedis(redisConnectionString);
 
 var app = builder.Build();
 
@@ -41,9 +44,7 @@ var handler = async (SQSEvent sqsEvent) =>
     Logger.LogInformation($"Retrieved Hub: {hub.ToString()}");
     
     await hub.Clients.Group("james").SendCoreAsync("Test", new[] { "hello" });;
-    
-    Logger.LogInformation("Sending message");
-            
+
     foreach (var message in sqsEvent.Records)
     {
         var translationRequest = JsonSerializer.Deserialize<TranslateMessageCommand>(message.Body);
@@ -54,14 +55,17 @@ var handler = async (SQSEvent sqsEvent) =>
             TargetLanguageCode = translationRequest.TranslateTo.ToLower(),
             Text = translationRequest.Message
         });
+        
+        await hub.Clients.Groups(translationRequest.Username)
+            .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.TranslatedText});
 
-        await sqsClient.SendMessageAsync(
-            Environment.GetEnvironmentVariable("QUEUE_URL"), JsonSerializer.Serialize(new TranslateMessageResponse()
-            {
-                Translation = translationResponse.TranslatedText,
-                ConnectionId = translationRequest.ConnectionId,
-                Username = translationRequest.Username
-            }));
+        // await sqsClient.SendMessageAsync(
+        //     Environment.GetEnvironmentVariable("QUEUE_URL"), JsonSerializer.Serialize(new TranslateMessageResponse()
+        //     {
+        //         Translation = translationResponse.TranslatedText,
+        //         ConnectionId = translationRequest.ConnectionId,
+        //         Username = translationRequest.Username
+        //     }));
     }
 };
 
