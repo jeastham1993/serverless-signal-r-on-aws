@@ -1,5 +1,5 @@
 {
-  "app": "dotnet run --project src/SignalRRedisApprunner/SignalRRedisApprunner.csproj",
+  "app": "dotnet run --project SharedInfrastructure/SharedInfrastructure.csproj",
   "watch": {
     "include": [
       "**"

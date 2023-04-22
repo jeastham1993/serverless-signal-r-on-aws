@@ -1,18 +1,16 @@
-﻿namespace SignalRRedisApprunner;
-
-using Amazon.CDK;
-using Amazon.CDK.AWS.EC2;
+﻿using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ElastiCache;
 using Amazon.CDK.AWS.IAM;
-
 using Constructs;
 
-public record SharedInfrastructureStackProps(IVpc Vpc, ISecurityGroup CacheSecurityGroup);
+namespace SharedInfrastructure;
 
-public class SharedInfrastructureStack : Construct
+public record ApplicationInfrastructureStackProps(IVpc Vpc, ISecurityGroup CacheSecurityGroup);
+
+public class ApplicationInfrastructureStack : Construct
 {
-    public SharedInfrastructureStack(Construct scope, string id, SharedInfrastructureStackProps props) : base(scope, id)
+    public ApplicationInfrastructureStack(Construct scope, string id, ApplicationInfrastructureStackProps props) : base(scope, id)
     {
         var applicationRepository = new Repository(
             this,
@@ -50,26 +48,5 @@ public class SharedInfrastructureStack : Construct
                 SubnetIds = subnets.SubnetIds,
                 Description = "Subnet group for redis cache"
             });
-        
-        /*var cache = new CfnCacheCluster(
-            this,
-            "RedisCluster",
-            new CfnCacheClusterProps()
-            {
-                Engine = "redis",
-                CacheNodeType = "cache.t3.small",
-                NumCacheNodes = 1,
-                CacheSubnetGroupName = "mysubnetgroup",
-                VpcSecurityGroupIds = new[] {props.CacheSecurityGroup.SecurityGroupId},
-                AzMode = "multi-az"
-            });
-        
-        cache.AddDependency(cacheSubnetGroup);
-        
-        var redisConnectionArn = new CfnOutput(this, "redis-connection-endpoint", new CfnOutputProps()
-        {
-            ExportName = "RedisConnectionEndpoint",
-            Value = cache.AttrRedisEndpointAddress
-        });*/
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace SignalRRedisApprunner;
-
-using Amazon.CDK;
+﻿using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
-
 using Constructs;
+
+namespace SharedInfrastructure;
 
 public class NetworkStack : Construct
 {
