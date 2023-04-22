@@ -1,0 +1,18 @@
+﻿version: '3.8'
+services:
+  cache:
+    image: redis:6.2-alpine
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data
+#  app:
+#    image: 521936459218.dkr.ecr.eu-west-1.amazonaws.com/app-runner-source-repo:0.0.1
+#    ports:
+#      - '8080:80'
+#    environment:
+#      - HOST_NAME=cache
+volumes:
+  cache:
+    driver: local
