@@ -48,7 +48,7 @@ public class TranslationHub : Hub
             ConnectionId = this.Context.ConnectionId
         };
 
-        var queueUrl = Environment.GetEnvironmentVariable("TRANSLATION_QUEUE_URL");
+        var queueUrl = this._configuration["TRANSLATION_QUEUE_URL"];
         
         _logger.LogInformation($"Sending request to {queueUrl}");
 

@@ -1,6 +1,5 @@
 using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Amazon.Lambda.SQSEvents;
@@ -9,9 +8,9 @@ using Amazon.Translate;
 using Amazon.Translate.Model;
 using AWS.Lambda.Powertools.Logging;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SignalR.Shared;
 using TranslationProcessor;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,28 +24,14 @@ var configuration = new ConfigurationBuilder()
 builder.Services.AddSingleton<IConfiguration>(configuration);
 builder.Services.AddLogging();
 
-var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_ENDPOINT");
-
-builder.Services.AddSignalR()
-    .AddStackExchangeRedis(redisConnectionString, options =>
-    {
-        //options.Configuration.ChannelPrefix = "translation";
-    });
-
 var app = builder.Build();
 
-app.MapHub<TranslationHub>("/translationHub");
-
 var translateClient = app.Services.GetRequiredService<AmazonTranslateClient>();
-var hub = app.Services.GetRequiredService<IHubContext<TranslationHub>>();
+var sqsClient = app.Services.GetRequiredService<AmazonSQSClient>();
 
 var handler = async (SQSEvent sqsEvent) =>
 {
     Logger.LogInformation("Handler active");
-    
-    Logger.LogInformation($"Retrieved Hub: {hub.ToString()}");
-    
-    await hub.Clients.Group("james").SendCoreAsync("Test", new[] { "hello" });;
 
     foreach (var message in sqsEvent.Records)
     {
@@ -63,12 +48,13 @@ var handler = async (SQSEvent sqsEvent) =>
         
         Logger.LogInformation("Sending message to connected client");
 
-        await hub.Clients.All.SendAsync("ReceiveTranslationResponse",
-            new object?[] { translationResponse.TranslatedText });
-
-        await hub.Clients.Client(translationRequest.ConnectionId)
-            .SendAsync("ReceiveTranslationResponse",
-                new object?[]{translationResponse.TranslatedText});
+        await sqsClient.SendMessageAsync(Environment.GetEnvironmentVariable("QUEUE_URL"), JsonSerializer.Serialize(
+            new TranslateMessageResponse()
+            {
+                Translation = translationResponse.TranslatedText,
+                Username = translationRequest.Username,
+                ConnectionId = translationRequest.ConnectionId
+            }));
     }
 };
 

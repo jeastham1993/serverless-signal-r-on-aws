@@ -7,18 +7,11 @@ Globals: # More info about Globals: https://github.com/awslabs/serverless-applic
     Timeout: 10
     MemorySize: 256
     Runtime: dotnet6
-    VpcConfig:
-      SecurityGroupIds:
-        - sg-04c9135580a2e0cae
-      SubnetIds:
-        - subnet-017996413109ddba1
     
 Parameters:
   TranslationQueueName:
     Type: String
   TranslationResponseQueueName:
-    Type: String
-  RedisEndpoint:
     Type: String
 
 Resources:
@@ -45,8 +38,7 @@ Resources:
           POWERTOOLS_TRACER_CAPTURE_RESPONSE: true
           POWERTOOLS_TRACER_CAPTURE_ERROR: true     # To disable tracing (CaptureMode = TracingCaptureMode.Disabled)
           POWERTOOLS_METRICS_NAMESPACE: translationprocessor
-          QUEUE_URL: !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/{TranslationResponseQueueName}"
-          REDIS_ENDPOINT: "signal-r-backplane-0001-001.8i4hko.0001.use1.cache.amazonaws.com:6379"
+          QUEUE_URL: !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${TranslationResponseQueueName}"
       Policies:
         - SQSSendMessagePolicy:
             QueueName: !Ref TranslationResponseQueueName

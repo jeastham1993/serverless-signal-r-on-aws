@@ -4,11 +4,14 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SQS;
 using Microsoft.AspNetCore.SignalR;
+using SignalR.Gateway;
 using SignalR.Shared;
 using TranslationProcessor;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
+// Setup AWS Credentials and SDK
 var chain = new CredentialProfileStoreChain();
 AWSCredentials? awsCredentials;
 var regionEndpoint = RegionEndpoint.USEast1;
@@ -24,6 +27,7 @@ builder.Services.AddSingleton(sqsClient);
 
 builder.Services.AddControllers();
 
+// Setup SignalR & Redis Backplane
 var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
 var portNumber = 6379;
 var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81";
@@ -50,7 +54,7 @@ else
 
 builder.Services.AddLogging();
 
-// builder.Services.AddHostedService<TranslationResponseWorker>();
+builder.Services.AddHostedService<TranslationResponseWorker>();
 
 var app = builder.Build();
 
@@ -59,8 +63,6 @@ app.UseAuthorization();
 app.MapHub<TranslationHub>("/translationHub");
 
 var translationHub = app.Services.GetRequiredService<IHubContext<TranslationHub>>();
-
-await translationHub.Clients.Group("james").SendCoreAsync("Test", new[] { "hello" });;
 
 app.MapGet(
     "/health",

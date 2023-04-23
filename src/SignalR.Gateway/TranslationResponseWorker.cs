@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Amazon.SQS;
+using Amazon.SQS.Model;
 using Microsoft.AspNetCore.SignalR;
 using SignalR.Shared;
 using TranslationProcessor;
@@ -25,7 +26,12 @@ public class TranslationResponseWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var messages = await this._sqsClient.ReceiveMessageAsync(this._configuration["TranslationResponseQueueUrl"], stoppingToken);
+            var messages = await this._sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest()
+            {
+                QueueUrl = this._configuration["TRANSLATION_RESPONSE_QUEUE_URL"],
+                WaitTimeSeconds = 2,
+                MaxNumberOfMessages = 10
+            }, stoppingToken);
 
             foreach (var message in messages.Messages)
             {
@@ -38,7 +44,7 @@ public class TranslationResponseWorker : BackgroundService
                     await this._translationHub.Clients.Groups(translationResponse.Username)
                         .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation}, stoppingToken);
 
-                    await this._sqsClient.DeleteMessageAsync(this._configuration["TranslationResponseQueueUrl"],
+                    await this._sqsClient.DeleteMessageAsync(this._configuration["TRANSLATION_RESPONSE_QUEUE_URL"],
                         message.ReceiptHandle, stoppingToken);
                 }
                 catch (Exception e)
