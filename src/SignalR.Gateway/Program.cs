@@ -30,7 +30,7 @@ builder.Services.AddControllers();
 // Setup SignalR & Redis Backplane
 var hostName = Environment.GetEnvironmentVariable("HOST_NAME") ?? "localhost";
 var portNumber = 6379;
-var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81";
+var password = Environment.GetEnvironmentVariable("CACHE_PASSWORD") ?? "";
 
 var connectionString = $"{hostName}:{portNumber}";
 
