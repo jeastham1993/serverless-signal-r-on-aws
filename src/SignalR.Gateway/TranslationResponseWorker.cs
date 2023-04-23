@@ -26,31 +26,42 @@ public class TranslationResponseWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var messages = await this._sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest()
+            try
             {
-                QueueUrl = this._configuration["TRANSLATION_RESPONSE_QUEUE_URL"],
-                WaitTimeSeconds = 2,
-                MaxNumberOfMessages = 10
-            }, stoppingToken);
+                var queueUrl = this._configuration["TRANSLATION_RESPONSE_QUEUE_URL"];
+            
+                this._logger.LogInformation($"Attempting to connect to queue URL {queueUrl}");
 
-            foreach (var message in messages.Messages)
-            {
-                this._logger.LogInformation("Processing message");
+                var messages = await this._sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest()
+                {
+                    QueueUrl = queueUrl,
+                    WaitTimeSeconds = 2,
+                    MaxNumberOfMessages = 10
+                }, stoppingToken);
+
+                foreach (var message in messages.Messages)
+                {
+                    this._logger.LogInformation("Processing message");
                 
-                try
-                {
-                    var translationResponse = JsonSerializer.Deserialize<TranslateMessageResponse>(message.Body);
+                    try
+                    {
+                        var translationResponse = JsonSerializer.Deserialize<TranslateMessageResponse>(message.Body);
 
-                    await this._translationHub.Clients.Groups(translationResponse.Username)
-                        .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation}, stoppingToken);
+                        await this._translationHub.Clients.Groups(translationResponse.Username)
+                            .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.Translation}, stoppingToken);
 
-                    await this._sqsClient.DeleteMessageAsync(this._configuration["TRANSLATION_RESPONSE_QUEUE_URL"],
-                        message.ReceiptHandle, stoppingToken);
+                        await this._sqsClient.DeleteMessageAsync(queueUrl,
+                            message.ReceiptHandle, stoppingToken);
+                    }
+                    catch (Exception e)
+                    {
+                        this._logger.LogError(e, "Failure processing message");
+                    }
                 }
-                catch (Exception e)
-                {
-                    this._logger.LogError(e, "Failure processing message");
-                }
+            }
+            catch (Exception e)
+            {
+                this._logger.LogError(e, "Failure processing messages");
             }
             
             await Task.Delay(TimeSpan.FromSeconds(5));
