@@ -1,0 +1,42 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inherits IndexBase
+
+<PageTitle>Index</PageTitle>
+
+<h1>Translate</h1>
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn class="rz-p-6">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenFormField Text="Connection Url" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@ConnectionUrl" Style="width: 100%;"/>
+            </RadzenFormField>
+            <RadzenFormField Text="Connect As" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@ConnectAs" Style="width: 100%;"/>
+            </RadzenFormField>
+
+            <RadzenButton Click="@(args => Connect())" Text="Connect" ButtonStyle="ButtonStyle.Primary"/>
+            <RadzenFormField Text="Text to Translate" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@TranslateText" Style="width: 100%;"/>
+            </RadzenFormField>
+            <RadzenFormField Text="Text To (2 Digit ISO Code)" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@TranslateToLanguage" Style="width: 100%;"/>
+            </RadzenFormField>
+            <RadzenButton Click="@(args => Translate())" Text="Translate" ButtonStyle="ButtonStyle.Primary"/>
+        </RadzenStack>
+        <p>@Message</p>
+    </RadzenColumn>
+    <RadzenColumn class="rz-p-6">
+        @foreach (var response in Responses)
+            {
+                <RadzenRow class="rz-mb-6">
+                    <RadzenColumn Size="12">
+                        <RadzenCard Style="width: 100%">
+                            <p>@response</p>
+                        </RadzenCard>
+                    </RadzenColumn>
+                </RadzenRow>
+            }
+    </RadzenColumn>
+</RadzenRow>
