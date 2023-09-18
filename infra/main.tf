@@ -52,7 +52,7 @@ resource "aws_cloudwatch_log_group" "signal_r_backplane_logs" {
 resource "aws_elasticache_cluster" "signal_r_backplane" {
   cluster_id           = "signal-r-backplane"
   engine               = "redis"
-  node_type            = "cache.m4.large"
+  node_type            = "cache.t3.micro"
   num_cache_nodes      = 1
   parameter_group_name = "default.redis7"
   engine_version       = "7.0"
@@ -69,8 +69,4 @@ resource "aws_elasticache_cluster" "signal_r_backplane" {
 
 resource "aws_sqs_queue" "translation_queue" {
   name                      = "translation-queue"
-}
-
-resource "aws_sqs_queue" "translation_response_queue" {
-  name                      = "translation-response-queue"
 }
