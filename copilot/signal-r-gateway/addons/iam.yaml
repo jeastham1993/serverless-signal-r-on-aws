@@ -1,0 +1,53 @@
+# You can use any of these parameters to create conditions or mappings in your template.
+Parameters:
+  App:
+    Type: String
+    Description: Your application's name.
+  Env:
+    Type: String
+    Description: The environment name your service, job, or workflow is being deployed to.
+  Name:
+    Type: String
+    Description: The name of the service, job, or workflow being deployed.
+
+Resources:
+  ApplicationAccessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: PutMetrics
+            Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource: "*"
+          - Sid: AllowTranslate
+            Effect: Allow
+            Action:
+              - translate:TranslateText
+            Resource: "*"
+          - Sid: XRayPutSegments
+            Effect: Allow
+            Action:
+              - xray:PutTraceSegments
+            Resource: "*"
+          - Sid: SQSDeleteAndReceive
+            Effect: Allow
+            Action:
+              - sqs:SendMessage
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+              - sqs:ListQueues
+              - sqs:GetQueueUrl
+              - sqs:ChangeMessageVisibility
+              - sqs:SendMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:DeleteMessageBatch
+            Resource: "*"
+
+Outputs:
+  # 1. You need to output the IAM ManagedPolicy so that Copilot can add it as a managed policy to your ECS task role.
+  ApplicationAccessPolicyArn:
+    Description: "The ARN of the ManagedPolicy to attach to the task role."
+    Value: !Ref ApplicationAccessPolicy

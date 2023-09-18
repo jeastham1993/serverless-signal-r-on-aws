@@ -17,8 +17,6 @@
 
 copilot.exe
 
-copilot/**
-
 *.dll
 .vs/*
 .idea/*
