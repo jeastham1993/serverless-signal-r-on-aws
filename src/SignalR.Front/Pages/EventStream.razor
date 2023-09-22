@@ -1,0 +1,30 @@
+@page "/events"
+@inherits EventStreamBase
+
+<PageTitle>Event Stream</PageTitle>
+
+<h1>Event Stream</h1>
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn class="rz-p-6">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenFormField Text="Connection Url" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@ConnectionUrl" Style="width: 100%;"/>
+            </RadzenFormField>
+            <RadzenButton Click="@(args => Connect())" Text="Connect" ButtonStyle="ButtonStyle.Primary"/>
+        </RadzenStack>
+        <p>@Message</p>
+    </RadzenColumn>
+    <RadzenColumn class="rz-p-6">
+        @foreach (var response in Responses)
+        {
+            <RadzenRow class="rz-mb-6">
+                <RadzenColumn Size="12">
+                    <RadzenCard Style="width: 100%">
+                        <p>@response</p>
+                    </RadzenCard>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+    </RadzenColumn>
+</RadzenRow>

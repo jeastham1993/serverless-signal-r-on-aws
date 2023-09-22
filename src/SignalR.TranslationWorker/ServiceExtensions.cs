@@ -1,10 +1,10 @@
-﻿namespace SignalR.Gateway;
-
-using Amazon;
+﻿using Amazon;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SQS;
 using Amazon.Translate;
+
+namespace SignalR.TranslationWorker;
 
 public static class ServiceExtensions
 {

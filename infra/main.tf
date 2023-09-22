@@ -67,6 +67,71 @@ resource "aws_elasticache_cluster" "signal_r_backplane" {
   }
 }
 
+module "eventbridge" {
+  source = "terraform-aws-modules/eventbridge/aws"
+
+  bus_name = "central-event-bus"
+
+  attach_sqs_policy = true
+  sqs_target_arns = [
+    aws_sqs_queue.event_stream_queue.arn,
+    aws_sqs_queue.event_stream_dlq.arn,
+  ]
+
+  rules = {
+    all = {
+      description   = "Capture all event data"
+      event_pattern = jsonencode({ "source" : [{
+        "prefix": ""
+      }] })
+      enabled       = true
+    }
+  }
+
+  targets = {
+    all = [
+      {
+        name            = "send-all-events-to-sqs"
+        arn             = aws_sqs_queue.event_stream_queue.arn
+        dead_letter_arn = aws_sqs_queue.event_stream_dlq.arn
+      }
+    ]
+  }
+}
+
 resource "aws_sqs_queue" "translation_queue" {
   name                      = "translation-queue"
+}
+
+resource "aws_sqs_queue" "event_stream_queue" {
+  name                      = "event-stream-queue"
+}
+
+resource "aws_sqs_queue" "event_stream_dlq" {
+  name                      = "event-stream-dlq"
+}
+
+resource "aws_sqs_queue_policy" "dlq_queue" {
+  queue_url = aws_sqs_queue.event_stream_dlq.id
+  policy    = data.aws_iam_policy_document.queue.json
+}
+
+resource "aws_sqs_queue_policy" "queue" {
+  queue_url = aws_sqs_queue.event_stream_queue.id
+  policy    = data.aws_iam_policy_document.queue.json
+}
+
+data "aws_iam_policy_document" "queue" {
+  statement {
+    sid     = "events-policy"
+    actions = ["sqs:SendMessage"]
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+    resources = [
+      aws_sqs_queue.event_stream_dlq.arn,
+      aws_sqs_queue.event_stream_queue.arn
+    ]
+  }
 }

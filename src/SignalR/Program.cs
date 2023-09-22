@@ -17,6 +17,7 @@ builder.Services.AddLogging();
 var app = builder.Build();
 
 app.MapHub<TranslationHub>("/api/translationHub");
+app.MapHub<EventHub>("/api/events");
 
 app.MapGet("/api/health", () => Results.Ok());
 

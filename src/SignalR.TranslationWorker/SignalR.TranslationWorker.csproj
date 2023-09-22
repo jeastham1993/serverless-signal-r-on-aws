@@ -8,11 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.CloudWatchEvents" Version="4.3.0" />
     <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.200.36" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.200.37" />
     <PackageReference Include="AWSSDK.Translate" Version="3.7.200.36" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.11" />
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
