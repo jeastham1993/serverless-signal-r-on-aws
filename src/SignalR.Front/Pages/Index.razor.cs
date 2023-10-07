@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 public partial class IndexBase : ComponentBase
 {
     private HubConnection connection;
+    private const string THINKING_TEXT = "Thinking.....";
     
     public string ConnectionUrl { get; set; }
     public string ConnectAs { get; set; }
@@ -16,6 +17,8 @@ public partial class IndexBase : ComponentBase
     public string TranslateToLanguage { get; set; }
     
     public List<string> Responses { get; set; }
+
+    public string ResponseData { get; set; } = "";
 
     public IndexBase()
     {
@@ -42,7 +45,12 @@ public partial class IndexBase : ComponentBase
             "ReceiveTranslationResponse",
             (received) =>
             {
-                Responses.Add(received);
+                if (this.ResponseData == THINKING_TEXT)
+                {
+                    this.ResponseData = "";
+                }
+                
+                this.ResponseData = $"{this.ResponseData}{received}";
                 
                 InvokeAsync(this.StateHasChanged);
             });
@@ -52,6 +60,13 @@ public partial class IndexBase : ComponentBase
 
     public async Task Translate()
     {
+        if (!string.IsNullOrEmpty(this.ResponseData))
+        {
+            this.Responses.Add(this.ResponseData);            
+        }
+
+        this.ResponseData = THINKING_TEXT;
+
         await connection.InvokeAsync("TranslateMessage", this.ConnectAs,this.TranslateToLanguage, this.TranslateText);
     }
 }

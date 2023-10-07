@@ -11,6 +11,9 @@
             <RadzenFormField Text="Connection Url" Style="width: 100%;">
                 <RadzenTextBox @bind-Value="@ConnectionUrl" Style="width: 100%;"/>
             </RadzenFormField>
+            <RadzenFormField Text="Connect As" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@ConnectAs" Style="width: 100%;"/>
+            </RadzenFormField>
             <RadzenButton Click="@(args => Connect())" Text="Connect" ButtonStyle="ButtonStyle.Primary"/>
         </RadzenStack>
         <p>@Message</p>

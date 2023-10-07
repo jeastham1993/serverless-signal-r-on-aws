@@ -9,11 +9,20 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.CloudWatchEvents" Version="4.3.0" />
+    <PackageReference Include="AWSSDK.BedrockRuntime" Version="3.7.201.4" />
     <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.200.36" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.200.37" />
     <PackageReference Include="AWSSDK.Translate" Version="3.7.200.36" />
+    <PackageReference Include="Honeycomb.OpenTelemetry" Version="1.3.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.5.1-beta.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.5.1-beta.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="7.0.11" />
+    <PackageReference Include="OpenTelemetry" Version="1.6.0" />
+    <PackageReference Include="OpenTelemetry.Contrib.Extensions.AWSXRay" Version="1.2.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.6.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.6.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.6.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
   </ItemGroup>
 

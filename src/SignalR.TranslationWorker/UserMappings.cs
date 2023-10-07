@@ -1,4 +1,4 @@
-namespace SignalR.Gateway;
+namespace SignalR.TranslationWorker;
 
 public static class UserMappings
 {

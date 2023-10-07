@@ -1,43 +1,35 @@
+using System.Text;
 using System.Text.Json;
+using Amazon.BedrockRuntime;
+using Amazon.BedrockRuntime.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-
-using SignalR.Shared;
-using TranslationProcessor;
-
 using Amazon.Translate;
 using Amazon.Translate.Model;
-
-namespace SignalR.Gateway;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using SignalR.Shared;
+using SignalR.TranslationWorker.Models;
+using SignalR.TranslationWorker.Services;
+
+namespace SignalR.TranslationWorker;
 
 public class TranslationQueueWorker : BackgroundService
 {
     private readonly AmazonSQSClient sqsClient;
-    private readonly AmazonTranslateClient translateClient;
+    private readonly ITranslationService translationService;
     private readonly IConfiguration configuration;
     private readonly ILogger<TranslationQueueWorker> logger;
     private readonly IHubContext<TranslationHub> translationHub;
     private readonly string queueUrl;
 
-    public TranslationQueueWorker(AmazonSQSClient sqsClient, AmazonTranslateClient translateClient, IConfiguration configuration, ILogger<TranslationQueueWorker> logger,
-        IHubContext<TranslationHub> translationHub)
+    public TranslationQueueWorker(AmazonSQSClient sqsClient, IConfiguration configuration, ILogger<TranslationQueueWorker> logger,
+        IHubContext<TranslationHub> translationHub, ITranslationService translationService)
     {
         this.sqsClient = sqsClient;
-        this.translateClient = translateClient;
         this.configuration = configuration;
         this.logger = logger;
         this.translationHub = translationHub;
+        this.translationService = translationService;
         this.queueUrl = this.configuration["TRANSLATION_QUEUE_URL"];
     }
 
@@ -64,17 +56,16 @@ public class TranslationQueueWorker : BackgroundService
         
                         this.logger.LogInformation($"Processing translation for {translationRequest.Username} and connection {translationRequest.ConnectionId}");
 
-                        var translationResponse = await translateClient.TranslateTextAsync(new TranslateTextRequest
+                        var translationResult = await this.translationService.Translate(translationRequest.Username, translationRequest.Message,
+                            translationRequest.TranslateTo, stoppingToken);
+
+                        if (string.IsNullOrEmpty(translationResult))
                         {
-                            SourceLanguageCode = "en",
-                            TargetLanguageCode = translationRequest.TranslateTo.ToLower(),
-                            Text = translationRequest.Message
-                        }, stoppingToken);
-            
-                        this.logger.LogInformation("Sending message to connected client");
-                        
-                        await this.translationHub.Clients.Groups(translationRequest.Username)
-                            .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResponse.TranslatedText}, stoppingToken);
+                            this.logger.LogInformation("Sending message to connected client");
+                            
+                            await this.translationHub.Clients.Groups(translationRequest.Username)
+                                .SendCoreAsync("ReceiveTranslationResponse", new object?[]{translationResult}, stoppingToken);
+                        }
 
                         processedMessages.Add(message);
                     }

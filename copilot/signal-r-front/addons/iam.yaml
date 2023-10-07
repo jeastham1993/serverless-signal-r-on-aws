@@ -17,28 +17,10 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Sid: AllowBedrock
+          - Sid: StepFunctionsAllow
             Effect: Allow
             Action:
-              - bedrock:*
-            Resource: "*"
-          - Sid: AllowTranslate
-            Effect: Allow
-            Action:
-              - translate:TranslateText
-            Resource: "*"
-          - Sid: SQSDeleteAndReceive
-            Effect: Allow
-            Action:
-              - sqs:SendMessage
-              - sqs:ReceiveMessage
-              - sqs:DeleteMessage
-              - sqs:ListQueues
-              - sqs:GetQueueUrl
-              - sqs:ChangeMessageVisibility
-              - sqs:SendMessageBatch
-              - sqs:GetQueueAttributes
-              - sqs:DeleteMessageBatch
+              - states:StartExecution
             Resource: "*"
 
 Outputs:

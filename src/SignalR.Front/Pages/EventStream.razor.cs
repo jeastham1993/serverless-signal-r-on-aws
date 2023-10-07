@@ -8,6 +8,7 @@ public class EventStreamBase : ComponentBase
     private HubConnection connection;
     
     public string ConnectionUrl { get; set; }
+    public string ConnectAs { get; set; }
 
     public List<string> Responses { get; set; }
 
@@ -23,7 +24,7 @@ public class EventStreamBase : ComponentBase
         this.Message = "Connecting...";
         
         connection = new HubConnectionBuilder()
-            .WithUrl($"{this.ConnectionUrl}/events")
+            .WithUrl($"{this.ConnectionUrl}/events?username={ConnectAs}")
             .Build();
 
         connection.Closed += async (error) =>
