@@ -42,12 +42,14 @@ builder.Services
     .SetupSignalR()
     .SetupAwsSdks();
 
-builder.Services.AddSingleton<ITranslationService, BedrockTranslationService>();
+builder.Services.AddSingleton<ITranslationService, AmazonTranslateTranslationService>();
+builder.Services.AddSingleton<IVideoSuggestionService, BedrockVideoSuggestionService>();
 
 builder.Services.AddLogging();
 
 builder.Services.AddHostedService<TranslationQueueWorker>();
 builder.Services.AddHostedService<EventStreamWorker>();
+builder.Services.AddHostedService<VideoSuggestionWorker>();
 
 var app = builder.Build();
 

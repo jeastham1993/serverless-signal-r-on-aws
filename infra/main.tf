@@ -111,6 +111,10 @@ resource "aws_sqs_queue" "event_stream_dlq" {
   name                      = "event-stream-dlq"
 }
 
+resource "aws_sqs_queue" "video_suggestion_queue" {
+  name                      = "video-suggestion-queue"
+}
+
 resource "aws_sqs_queue_policy" "dlq_queue" {
   queue_url = aws_sqs_queue.event_stream_dlq.id
   policy    = data.aws_iam_policy_document.queue.json

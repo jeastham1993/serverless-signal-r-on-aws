@@ -1,0 +1,46 @@
+@page "/suggestions"
+@inherits VideoSuggestionBase
+
+<PageTitle>Video Suggestions</PageTitle>
+
+<h1>Generate Video Suggestions</h1>
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn class="rz-p-6">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenFormField Text="Connection Url" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@ConnectionUrl" Style="width: 100%;"/>
+            </RadzenFormField>
+            <RadzenFormField Text="Connect As" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@ConnectAs" Style="width: 100%;"/>
+            </RadzenFormField>
+
+            <RadzenButton Click="@(args => Connect())" Text="Connect" ButtonStyle="ButtonStyle.Primary"/>
+            <RadzenFormField Text="Video Topic" Style="width: 100%;">
+                <RadzenTextBox @bind-Value="@Topic" Style="width: 100%;"/>
+            </RadzenFormField>
+            <RadzenButton Click="@(args => Suggest())" Text="Suggest" ButtonStyle="ButtonStyle.Primary"/>
+        </RadzenStack>
+        <p>@Message</p>
+    </RadzenColumn>
+    <RadzenColumn class="rz-p-6">
+        <RadzenRow>
+            <RadzenColumn Size="12">
+                <RadzenCard Style="width: 100%">
+                    <p>@ResponseData</p>
+                </RadzenCard>
+            </RadzenColumn>
+        </RadzenRow>
+        <h2>Previous Suggestions</h2>
+        @foreach (var response in Responses)
+        {
+            <RadzenRow class="rz-mb-6">
+                <RadzenColumn Size="12">
+                    <RadzenCard Style="width: 100%">
+                        <p>@response</p>
+                    </RadzenCard>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+    </RadzenColumn>
+</RadzenRow>
