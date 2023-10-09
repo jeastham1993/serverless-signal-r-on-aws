@@ -26,7 +26,7 @@ public class BedrockVideoSuggestionService : IVideoSuggestionService
         var prompt = new AnthropicClaudeV2($"I produce content on YouTube focused on building serverless applications on AWS using .NET, Java and Rust. I keep the videos short and focused on a single topic, no longer than 10 minutes. Based on the subject of '{topic}', could you provide an outline of 3 video topics? Including titles.");
 
         var promptResponse = await this.bedrockRuntimeClient.InvokeModelWithResponseStreamAsync(prompt.AsStreamRequest(), stoppingToken);
-                        
+
         promptResponse.Body.ChunkReceived += async (sender, e) =>
         {
             this.logger.LogInformation($"Sending chunked response to {requestedByUser}");
