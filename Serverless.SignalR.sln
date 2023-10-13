@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.TranslationWorker",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Shared", "src\SignalR.Shared\SignalR.Shared.csproj", "{585548B6-345C-4AEA-B1EA-DF3FF4D1E901}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Lambda", "src\SignalR.Lambda\src\SignalR.Lambda\SignalR.Lambda.csproj", "{C958BF28-C2FC-444A-B9A5-61508DFBB503}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{585548B6-345C-4AEA-B1EA-DF3FF4D1E901}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{585548B6-345C-4AEA-B1EA-DF3FF4D1E901}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{585548B6-345C-4AEA-B1EA-DF3FF4D1E901}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
