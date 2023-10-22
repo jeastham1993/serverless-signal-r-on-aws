@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
-using SignalR.Front.Services;
 
-namespace SignalR.Front.Pages;
+namespace SignalR.Front.Wasm.Pages;
 
 public class VideoSuggestionBase : ComponentBase
 {
@@ -21,9 +17,6 @@ public class VideoSuggestionBase : ComponentBase
     public List<string> Responses { get; set; }
 
     public string ResponseData { get; set; } = "";
-
-    [Inject]
-    public IOrderWorkflowService WorkflowService { get; set; }
 
     public VideoSuggestionBase()
     {

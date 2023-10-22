@@ -1,5 +1,4 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @inherits IndexBase
 
 <PageTitle>Index</PageTitle>
@@ -32,14 +31,14 @@
 
         <h2>Previous Translations</h2>
         @foreach (var response in Responses)
-            {
-                <RadzenRow class="rz-mb-6">
-                    <RadzenColumn Size="12">
-                        <RadzenCard Style="width: 100%">
-                            <p>@response</p>
-                        </RadzenCard>
-                    </RadzenColumn>
-                </RadzenRow>
-            }
+        {
+            <RadzenRow class="rz-mb-6">
+                <RadzenColumn Size="12">
+                    <RadzenCard Style="width: 100%">
+                        <p>@response</p>
+                    </RadzenCard>
+                </RadzenColumn>
+            </RadzenRow>
+        }
     </RadzenColumn>
 </RadzenRow>

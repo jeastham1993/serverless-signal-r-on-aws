@@ -1,7 +1,7 @@
-﻿namespace SignalR.Front.Pages;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
+
+namespace SignalR.Front.Wasm.Pages;
 
 public partial class IndexBase : ComponentBase
 {

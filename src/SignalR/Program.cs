@@ -8,17 +8,21 @@ using SignalR.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Sdk.CreateTracerProviderBuilder()
-    .AddSource(TelemetryConstants.ServiceName)
-    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: TelemetryConstants.ServiceName).AddTelemetrySdk())
-    .AddHttpClientInstrumentation()
-    .AddAspNetCoreInstrumentation()
-    .AddHoneycomb(new HoneycombOptions
-    {
-        ServiceName = TelemetryConstants.ServiceName,
-        ApiKey = Environment.GetEnvironmentVariable("HONEYCOMB_API_KEY")
-    })
-    .Build();
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("HONEYCOMB_API_KEY")))
+{
+    Sdk.CreateTracerProviderBuilder()
+        .AddSource(TelemetryConstants.ServiceName)
+        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: TelemetryConstants.ServiceName)
+            .AddTelemetrySdk())
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddHoneycomb(new HoneycombOptions
+        {
+            ServiceName = TelemetryConstants.ServiceName,
+            ApiKey = Environment.GetEnvironmentVariable("HONEYCOMB_API_KEY")
+        })
+        .Build();
+}
 
 builder.Configuration.AddEnvironmentVariables();
 
@@ -31,6 +35,11 @@ builder.Services
 builder.Services.AddLogging();
 
 var app = builder.Build();
+
+app.UseCors(opt => opt
+    .AllowAnyHeader()
+    .AllowAnyOrigin()
+    .AllowAnyMethod());
 
 app.MapHub<TranslationHub>("/api/translationHub");
 app.MapHub<EventHub>("/api/events");

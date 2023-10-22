@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace SignalR.Front.Pages;
+namespace SignalR.Front.Wasm.Pages;
 
 public class EventStreamBase : ComponentBase
 {

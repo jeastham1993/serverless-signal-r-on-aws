@@ -5,13 +5,13 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR", "src\SignalR\SignalR.csproj", "{E18E9564-A116-44DB-BE6D-C34BEF0A5CFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Front", "src\SignalR.Front\SignalR.Front.csproj", "{84C85584-4CCF-4957-9E5C-66F8D7189679}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.TranslationWorker", "src\SignalR.TranslationWorker\SignalR.TranslationWorker.csproj", "{E3360371-7E73-4F53-A64D-8DEBA155D2C2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Shared", "src\SignalR.Shared\SignalR.Shared.csproj", "{585548B6-345C-4AEA-B1EA-DF3FF4D1E901}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Lambda", "src\SignalR.Lambda\SignalR.Lambda.csproj", "{C958BF28-C2FC-444A-B9A5-61508DFBB503}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Front.Wasm", "src\SignalR.Front.Wasm\SignalR.Front.Wasm.csproj", "{0A39460E-DEE1-4856-8DC7-9A37F8218295}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +26,6 @@ Global
 		{E18E9564-A116-44DB-BE6D-C34BEF0A5CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E18E9564-A116-44DB-BE6D-C34BEF0A5CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E18E9564-A116-44DB-BE6D-C34BEF0A5CFF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84C85584-4CCF-4957-9E5C-66F8D7189679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84C85584-4CCF-4957-9E5C-66F8D7189679}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84C85584-4CCF-4957-9E5C-66F8D7189679}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84C85584-4CCF-4957-9E5C-66F8D7189679}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3360371-7E73-4F53-A64D-8DEBA155D2C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3360371-7E73-4F53-A64D-8DEBA155D2C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3360371-7E73-4F53-A64D-8DEBA155D2C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -42,5 +38,9 @@ Global
 		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C958BF28-C2FC-444A-B9A5-61508DFBB503}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A39460E-DEE1-4856-8DC7-9A37F8218295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A39460E-DEE1-4856-8DC7-9A37F8218295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A39460E-DEE1-4856-8DC7-9A37F8218295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A39460E-DEE1-4856-8DC7-9A37F8218295}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
